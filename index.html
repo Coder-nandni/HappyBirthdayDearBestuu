@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Birthday Surprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Great+Vibes&family=Pacifico&family=Lobster&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0d0b1a; min-height:100vh; display:flex; justify-content:center; align-items:center; font-family:'Poppins',sans-serif; }
+        
+        .password-box { background:rgba(255,255,255,0.07); backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,0.15); border-radius:40px; padding:2.5rem 2rem; max-width:420px; width:92%; text-align:center; box-shadow:0 30px 60px rgba(0,0,0,0.7); }
+        .password-box h2 { font-size:2rem; background:linear-gradient(135deg,#f9a8d4,#f472b6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:0.3rem; }
+        .password-box p { color:rgba(255,255,255,0.6); margin-bottom:1.5rem; }
+        .password-display { background:rgba(0,0,0,0.4); border-radius:60px; padding:0.9rem; font-size:2rem; letter-spacing:12px; color:#fff; border:1px solid rgba(255,255,255,0.1); margin-bottom:1.5rem; min-height:65px; display:flex; align-items:center; justify-content:center; font-family:'Courier New',monospace; }
+        .keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:260px; margin:0 auto 1.2rem; }
+        .key { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.08); border-radius:50px; padding:14px 0; font-size:1.4rem; color:#fff; cursor:pointer; transition:0.15s; user-select:none; }
+        .key:hover { background:rgba(244,114,182,0.25); border-color:#f472b6; }
+        .key:active { transform:scale(0.92); background:rgba(244,114,182,0.4); }
+        .key.clear-key { color:#fca5a5; }
+        .key.enter-key { background:linear-gradient(135deg,#f472b6,#ec4899); border:none; font-weight:600; }
+        .key.enter-key:hover { background:linear-gradient(135deg,#f9a8d4,#f472b6); }
+        #passwordFeedback { min-height:2rem; font-size:0.9rem; font-weight:500; }
+        .shake { animation:shake 0.4s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+        
+        .floating-heart{ position:fixed; font-size:20px; animation:heartFloat 8s linear infinite; opacity:.8; pointer-events:none; }
+        @keyframes heartFloat{ 0%{transform:translateY(120vh) scale(.5);opacity:0;} 20%{opacity:1;} 100%{transform:translateY(-120vh) scale(1.4);opacity:0;} }
+        
+        @media (max-width:480px){ .password-box { padding:1.5rem 1rem; } .password-box h2 { font-size:1.6rem; } .key { padding:12px 0; font-size:1.3rem; } }
+    </style>
+</head>
+<body>
+
+    <div class="password-box">
+        <h2>🔐 special date</h2>
+        <p>enter your special date ❤️</p>
+        <div class="password-display" id="passwordDisplay">_ _ _ _</div>
+        <div class="keypad" id="keypad">
+            <div class="key" data-value="1">1</div>
+            <div class="key" data-value="2">2</div>
+            <div class="key" data-value="3">3</div>
+            <div class="key" data-value="4">4</div>
+            <div class="key" data-value="5">5</div>
+            <div class="key" data-value="6">6</div>
+            <div class="key" data-value="7">7</div>
+            <div class="key" data-value="8">8</div>
+            <div class="key" data-value="9">9</div>
+            <div class="key clear-key" data-value="clear"><i class="fas fa-delete-left"></i></div>
+            <div class="key" data-value="0">0</div>
+            <div class="key enter-key" data-value="enter"><i class="fas fa-check"></i></div>
+        </div>
+        <div id="passwordFeedback"></div>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const CORRECT_PASSWORD = '1820';
+        let entered = '';
+
+        const passwordDisplay = document.getElementById('passwordDisplay');
+        const passwordFeedback = document.getElementById('passwordFeedback');
+
+        function updateDisplay() {
+            let str = '';
+            for (let i = 0; i < 4; i++) {
+                str += (i < entered.length) ? entered[i] + ' ' : '_ ';
+            }
+            passwordDisplay.textContent = str.trim();
+        }
+
+        function handleKey(value) {
+            if (value === 'clear') {
+                entered = entered.slice(0, -1);
+                updateDisplay();
+                passwordFeedback.textContent = '';
+                passwordFeedback.style.color = '';
+                return;
+            }
+            if (value === 'enter') {
+                if (entered === CORRECT_PASSWORD) {
+                    passwordFeedback.textContent = '✅ correct!';
+                    passwordFeedback.style.color = '#86efac';
+                    setTimeout(() => { window.location.href = 'page2.html'; }, 500);
+                } else {
+                    passwordFeedback.textContent = '❌ wrong date, try again';
+                    passwordFeedback.style.color = '#fca5a5';
+                    document.querySelector('.password-box').classList.add('shake');
+                    setTimeout(() => document.querySelector('.password-box').classList.remove('shake'), 400);
+                    entered = '';
+                    updateDisplay();
+                }
+                return;
+            }
+            if (entered.length < 4) {
+                entered += value;
+                updateDisplay();
+                passwordFeedback.textContent = '';
+                passwordFeedback.style.color = '';
+            }
+        }
+
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleKey(this.dataset.value);
+            });
+            key.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                handleKey(this.dataset.value);
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                e.preventDefault();
+                handleKey(e.key);
+            } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                e.preventDefault();
+                handleKey('clear');
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                handleKey('enter');
+            }
+        });
+
+        // Floating hearts
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.className = "floating-heart";
+            heart.innerHTML = ["💖","💕","💗","💝","❤️"][Math.floor(Math.random()*5)];
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = (5 + Math.random() * 5) + "s";
+            heart.style.fontSize = (18 + Math.random() * 25) + "px";
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 10000);
+        }
+        setInterval(createHeart, 500);
+
+        updateDisplay();
+    </script>
+</body>
+</html>
