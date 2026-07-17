@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💌 Special Surprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Great+Vibes&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0d0b1a; min-height:100vh; padding:20px; font-family:'Poppins',sans-serif; display:flex; align-items:center; justify-content:center; }
+
+        .container { max-width:550px; width:100%; margin:0 auto; text-align:center; position:relative; z-index:10; }
+
+        .blur-bg { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; background:#0d0b1a; overflow:hidden; }
+        .blur-bg img { width:100%; height:100%; object-fit:cover; filter:blur(30px) brightness(0.4); transform:scale(1.1); }
+
+        .container h2 { font-family:'Great Vibes',cursive; font-size:2.8rem; background:linear-gradient(135deg,#fbbf24,#f472b6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:5px; position:relative; z-index:10; }
+        .container .sub { color:rgba(255,255,255,0.5); font-size:0.95rem; margin-bottom:20px; position:relative; z-index:10; }
+
+        /* Envelope */
+        .envelope-wrapper { position:relative; width:280px; height:180px; margin:20px auto; cursor:pointer; perspective:800px; z-index:10; }
+        .envelope { position:relative; width:100%; height:100%; background:linear-gradient(145deg,#f5e6d3,#e8d5c4); border-radius:12px 12px 4px 4px; box-shadow:0 20px 40px rgba(0,0,0,0.4); transition:transform 0.8s cubic-bezier(0.68,-0.55,0.27,1.55); transform-style:preserve-3d; }
+        .envelope::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:#e8d5c4; clip-path:polygon(0 0,50% 55%,100% 0); border-radius:12px 12px 0 0; z-index:2; }
+        .envelope::after { content:'✉️'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:4rem; z-index:3; opacity:0.6; }
+        .envelope .seal { position:absolute; top:20px; right:20px; width:40px; height:40px; background:radial-gradient(circle,#ff6b6b,#c0392b); border-radius:50%; z-index:4; box-shadow:0 0 20px rgba(255,107,107,0.3); display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#fff; font-family:'Great Vibes',cursive; }
+        .envelope .stamp { position:absolute; top:15px; left:20px; width:50px; height:60px; background:linear-gradient(135deg,#ffd700,#ff6b6b); border-radius:4px; z-index:4; display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:#fff; font-weight:600; padding:5px; text-align:center; border:2px dashed rgba(255,255,255,0.3); }
+        .envelope.open { transform:rotateY(180deg) scale(0.9); opacity:0; pointer-events:none; }
+
+        /* Gift Box */
+        .gift-box-reveal { display:none; margin-top:10px; animation:giftPop 0.8s cubic-bezier(0.68,-0.55,0.27,1.55) forwards; z-index:10; }
+        .gift-box-reveal.show { display:block; }
+        @keyframes giftPop { 0%{opacity:0;transform:scale(0.3) rotate(-10deg)} 50%{transform:scale(1.1) rotate(2deg)} 100%{opacity:1;transform:scale(1) rotate(0deg)} }
+        .gift-box-large { width:220px; height:220px; margin:0 auto; background:linear-gradient(145deg,#f472b6,#be185d); border-radius:20px 20px 10px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:5rem; cursor:pointer; box-shadow:0 20px 60px rgba(244,114,182,0.4); transition:all 0.5s cubic-bezier(0.68,-0.55,0.27,1.55); position:relative; border:3px solid rgba(255,255,255,0.1); }
+        .gift-box-large:hover { transform:scale(1.05) rotate(-3deg); box-shadow:0 30px 80px rgba(244,114,182,0.6); }
+        .gift-box-large .bow { position:absolute; top:-15px; font-size:3rem; }
+        .gift-box-large .label { font-size:1rem; background:rgba(0,0,0,0.3); padding:6px 24px; border-radius:40px; color:#fff; margin-top:10px; font-family:'Poppins',sans-serif; }
+        .gift-box-large .shine { position:absolute; top:-30%; left:-30%; width:60%; height:60%; background:radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 70%); border-radius:50%; pointer-events:none; }
+
+        /* Full Screen Photo */
+        .photo-fullscreen { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); align-items:center; justify-content:center; flex-direction:column; padding:30px; animation:fadeInFull 0.8s ease; }
+        .photo-fullscreen.show { display:flex; }
+        @keyframes fadeInFull { 0%{opacity:0;transform:scale(0.9)} 100%{opacity:1;transform:scale(1)} }
+        .photo-fullscreen .frame { background:#fff; padding:20px 20px 50px 20px; border-radius:15px 15px 25px 25px; box-shadow:0 30px 80px rgba(0,0,0,0.8); max-width:520px; width:100%; max-height:90vh; transform:rotate(var(--rot,1deg)); overflow:hidden; }
+        .photo-fullscreen .frame .img-wrapper { width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:10px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; }
+        .photo-fullscreen .frame .img-wrapper img { width:100%; height:100%; object-fit:contain; }
+        .photo-fullscreen .frame .caption { font-family:'Dancing Script',cursive; font-size:1.3rem; color:#333; text-align:center; margin-top:12px; }
+        .photo-fullscreen .frame .year-text { font-family:'Poppins',sans-serif; font-size:0.9rem; color:#999; text-align:center; letter-spacing:2px; }
+
+        /* Popup */
+        .popup-message { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.5); z-index:2000; background:linear-gradient(145deg,rgba(244,114,182,0.15),rgba(236,72,153,0.1)); backdrop-filter:blur(30px); border:2px solid rgba(255,255,255,0.15); border-radius:40px; padding:40px 35px; max-width:450px; width:92%; text-align:center; box-shadow:0 40px 100px rgba(0,0,0,0.7); animation:popupAnim 0.8s cubic-bezier(0.68,-0.55,0.27,1.55) forwards; }
+        .popup-message.show { display:block; }
+        @keyframes popupAnim { 0%{transform:translate(-50%,-50%) scale(0.3) rotate(-10deg);opacity:0} 60%{transform:translate(-50%,-50%) scale(1.05) rotate(2deg);opacity:1} 100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:1} }
+        .popup-message .emoji-big { font-size:4rem; margin-bottom:10px; }
+        .popup-message h1 { font-family:'Great Vibes',cursive; font-size:2.8rem; background:linear-gradient(135deg,#fbbf24,#f472b6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:5px; }
+        .popup-message .sub-text { font-family:'Dancing Script',cursive; font-size:1.5rem; color:rgba(255,255,255,0.8); }
+        .popup-message .close-btn { background:linear-gradient(135deg,#f472b6,#ec4899); border:none; padding:10px 35px; border-radius:60px; font-weight:600; color:#fff; cursor:pointer; transition:0.3s; margin-top:15px; font-size:1rem; }
+        .popup-message .close-btn:hover { transform:scale(1.05); box-shadow:0 0 30px #f472b688; }
+
+        /* Download Buttons */
+        .download-section { display:none; margin-top:20px; gap:12px; flex-direction:column; width:100%; max-width:400px; position:relative; z-index:10; }
+        .download-section.show { display:flex; }
+        .gen-btn { background:linear-gradient(135deg,#f472b6,#ec4899); border:none; padding:14px 30px; border-radius:60px; font-weight:600; font-size:1.1rem; color:#fff; box-shadow:0 0 30px #f472b688; cursor:pointer; transition:0.3s; width:100%; }
+        .gen-btn:hover { transform:scale(1.02); box-shadow:0 0 50px #f472b6; }
+        .gen-btn:disabled { opacity:0.5; cursor:not-allowed; }
+        .gen-btn.card-btn { background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 0 30px rgba(79,70,229,0.3); }
+        .gen-btn.card-btn:hover { box-shadow:0 0 50px rgba(79,70,229,0.5); }
+        .spinner { display:inline-block; width:24px; height:24px; border:3px solid rgba(255,255,255,0.15); border-radius:50%; border-top-color:#fff; animation:spin 0.8s ease infinite; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        .preview-box { display:none; margin-top:15px; background:rgba(255,255,255,0.03); border-radius:20px; padding:15px; border:1px solid rgba(255,255,255,0.05); }
+        .preview-box.show { display:block; animation:fadeUp 0.6s ease; }
+        .preview-box img { width:100%; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+
+        .glow-btn { background:linear-gradient(135deg,#f472b6,#ec4899); border:none; padding:12px 35px; border-radius:60px; font-weight:600; color:#fff; box-shadow:0 0 30px #f472b688; cursor:pointer; transition:0.3s; margin-top:12px; font-size:1rem; }
+        .glow-btn:hover { transform:scale(1.05); box-shadow:0 0 50px #f472b6; }
+
+        .firework { position:fixed; pointer-events:none; z-index:999; }
+        .firework-particle { position:absolute; width:8px; height:8px; border-radius:50%; animation:fireworkBurst 1.2s ease-out forwards; }
+        @keyframes fireworkBurst { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0} }
+
+        .confetti-piece { position:fixed; pointer-events:none; z-index:999; animation:confettiFall 3s linear forwards; }
+        @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+        .floating-heart{ position:fixed; font-size:20px; animation:heartFloat 8s linear infinite; opacity:.8; pointer-events:none; }
+        @keyframes heartFloat{ 0%{transform:translateY(120vh) scale(.5);opacity:0;} 20%{opacity:1;} 100%{transform:translateY(-120vh) scale(1.4);opacity:0;} }
+
+        .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); color:#fff; padding:10px 25px; border-radius:50px; font-size:0.9rem; z-index:99999; animation:toastAnim 2.5s ease forwards; border:1px solid rgba(255,255,255,0.05); }
+        @keyframes toastAnim { 0%{opacity:0;transform:translateX(-50%) translateY(15px)} 15%{opacity:1;transform:translateX(-50%) translateY(0)} 85%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(-15px)} }
+
+        @media (max-width:480px){ .container h2 { font-size:2.2rem; } .envelope-wrapper { width:220px; height:150px; } .gift-box-large { width:180px; height:180px; font-size:4rem; } .popup-message h1 { font-size:2.2rem; } .popup-message .sub-text { font-size:1.2rem; } .photo-fullscreen .frame { padding:15px 15px 40px 15px; } .photo-fullscreen { padding:15px; } }
+    </style>
+</head>
+<body>
+
+    <div class="blur-bg" id="blurBg">
+        <img id="bgPhoto" src="https://picsum.photos/seed/special/800/800" alt="Background">
+    </div>
+
+    <div class="container">
+        <h2>💌 A Special Surprise</h2>
+        <p class="sub">Tap the envelope to open it ✨</p>
+
+        <div class="envelope-wrapper" id="envelopeWrapper">
+            <div class="envelope" id="envelope">
+                <div class="seal">❤️</div>
+                <div class="stamp">💌<br>LOVE</div>
+            </div>
+        </div>
+
+        <div class="gift-box-reveal" id="giftReveal">
+            <div class="gift-box-large" id="giftBoxLarge">
+                <div class="shine"></div>
+                <span class="bow">🎀</span>
+                🎁
+                <span class="label">Tap to Open!</span>
+            </div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <button class="gen-btn" id="genWallpaperBtn">✨ Download HD Wallpaper</button>
+            <button class="gen-btn card-btn" id="genCardBtn">🎴 Download Digital Card</button>
+        </div>
+
+        <div class="preview-box" id="previewBox">
+            <img id="previewImage" src="" alt="Preview">
+            <button class="gen-btn" id="downloadFinalBtn" style="margin-top:10px;"><i class="fas fa-download"></i> Download</button>
+        </div>
+    </div>
+
+    <!-- Full Screen Photo -->
+    <div class="photo-fullscreen" id="photoFullscreen">
+        <div class="frame" style="--rot:1deg;">
+            <div class="img-wrapper">
+                <img id="specialPhoto" src="https://picsum.photos/seed/special/500/500" alt="Special Photo">
+            </div>
+            <div class="caption">💖 A Special Memory 💖</div>
+            <div class="year-text">1998 ❤️ 2026</div>
+        </div>
+        <button class="glow-btn" id="closePhotoBtn" style="margin-top:20px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);">✨ Close</button>
+    </div>
+
+    <!-- Popup Message -->
+    <div class="popup-message" id="popupMessage">
+        <div class="emoji-big">🎉🥳🎂</div>
+        <h1>Its your birthday!</h1>
+        <div class="sub-text">Happy Birthday My Dear Bestu ❤️</div>
+        <button class="close-btn" id="closePopupBtn">💖 Thank You!</button>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ================================================================
+        // ENVELOPE + GIFT + PHOTO
+        // ================================================================
+        let generatedImage = null;
+        let isCardMode = false;
+
+        const envelopeWrapper = document.getElementById('envelopeWrapper');
+        const envelope = document.getElementById('envelope');
+        const giftReveal = document.getElementById('giftReveal');
+        const giftBoxLarge = document.getElementById('giftBoxLarge');
+        const downloadSection = document.getElementById('downloadSection');
+        const photoFullscreen = document.getElementById('photoFullscreen');
+        const popupMessage = document.getElementById('popupMessage');
+        const closePopupBtn = document.getElementById('closePopupBtn');
+        const closePhotoBtn = document.getElementById('closePhotoBtn');
+        const bgPhoto = document.getElementById('bgPhoto');
+        const specialPhoto = document.getElementById('specialPhoto');
+
+        // Background music
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.volume = 0.3;
+        bgMusic.play().catch(() => {});
+
+        // Sync background photo
+        if (specialPhoto.src) { bgPhoto.src = specialPhoto.src; }
+
+        // Step 1: Open envelope
+        envelopeWrapper.addEventListener('click', function() {
+            if (envelope.classList.contains('open')) return;
+            envelope.classList.add('open');
+            showToast('💌 Envelope opened!');
+
+            setTimeout(() => {
+                giftReveal.classList.add('show');
+                showToast('🎁 A special gift for you!');
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const c = document.createElement('div');
+                        const cols = ['#ff0051', '#00d2ff', '#ffdd00', '#ff9100', '#9d00ff', '#00ff9d'];
+                        const s = Math.random() * 6 + 3;
+                        c.style.cssText =
+                            `position:fixed; width:${s}px; height:${s}px; background:${cols[Math.floor(Math.random()*cols.length)]}; left:${Math.random()*100}%; top:${Math.random()*100}%; border-radius:50%; z-index:999; pointer-events:none; animation:sparkleAnim 1s ease forwards;`;
+                        document.body.appendChild(c);
+                        setTimeout(() => c.remove(), 1200);
+                    }, i * 50);
+                }
+            }, 600);
+        });
+
+        // Step 2: Open gift box
+        giftBoxLarge.addEventListener('click', function() {
+            if (this.dataset.opened === 'true') return;
+            this.dataset.opened = 'true';
+
+            showToast('🎆 Surprise!');
+            createFireworks();
+            createConfettiBurst();
+
+            this.style.transform = 'scale(1.5) rotate(20deg)';
+            this.style.opacity = '0';
+            this.style.transition = 'all 0.6s ease';
+
+            setTimeout(() => {
+                this.style.display = 'none';
+                giftReveal.style.display = 'none';
+
+                photoFullscreen.classList.add('show');
+                showToast('🖼️ Your special photo!');
+
+                setTimeout(() => {
+                    popupMessage.classList.add('show');
+                    createConfettiBurst();
+                    createFireworks();
+                }, 800);
+
+                setTimeout(() => {
+                    downloadSection.classList.add('show');
+                }, 1500);
+            }, 600);
+        });
+
+        closePopupBtn.addEventListener('click', function() {
+            popupMessage.classList.remove('show');
+            createFireworks();
+            createConfettiBurst();
+        });
+
+        closePhotoBtn.addEventListener('click', function() {
+            photoFullscreen.classList.remove('show');
+        });
+
+        // ================================================================
+        // FIREWORKS
+        // ================================================================
+        function createFireworks() {
+            const colors = ['#ff0051', '#ffd700', '#00d2ff', '#ff9100', '#9d00ff', '#00ff9d', '#ff00f7', '#fbbf24'];
+            for (let burst = 0; burst < 5; burst++) {
+                setTimeout(() => {
+                    const cx = Math.random() * 80 + 10;
+                    const cy = Math.random() * 60 + 20;
+                    const container = document.createElement('div');
+                    container.className = 'firework';
+                    container.style.left = cx + '%';
+                    container.style.top = cy + '%';
+                    container.style.width = '0';
+                    container.style.height = '0';
+
+                    for (let i = 0; i < 30; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'firework-particle';
+                        const angle = (i / 30) * Math.PI * 2;
+                        const dist = Math.random() * 150 + 80;
+                        const tx = Math.cos(angle) * dist;
+                        const ty = Math.sin(angle) * dist;
+                        particle.style.setProperty('--tx', tx + 'px');
+                        particle.style.setProperty('--ty', ty + 'px');
+                        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        particle.style.width = Math.random() * 6 + 4 + 'px';
+                        particle.style.height = particle.style.width;
+                        particle.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                        container.appendChild(particle);
+                    }
+                    document.body.appendChild(container);
+                    setTimeout(() => container.remove(), 1500);
+                }, burst * 300);
+            }
+        }
+
+        // ================================================================
+        // CONFETTI BURST
+        // ================================================================
+        function createConfettiBurst() {
+            const colors = ['#ff0051', '#ffd700', '#00d2ff', '#ff9100', '#9d00ff', '#00ff9d', '#ff00f7', '#fbbf24', '#f472b6'];
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => {
+                    const c = document.createElement('div');
+                    c.className = 'confetti-piece';
+                    const size = Math.random() * 10 + 5;
+                    const isCircle = Math.random() > 0.5;
+                    c.style.cssText = `
+                                width:${size}px; height:${isCircle ? size : size * 0.6}px;
+                                background:${colors[Math.floor(Math.random() * colors.length)]};
+                                left:${Math.random() * 100}%; top:-10px;
+                                border-radius:${isCircle ? '50%' : '2px'};
+                                transform:rotate(${Math.random() * 360}deg);
+                            `;
+                    document.body.appendChild(c);
+                    setTimeout(() => c.remove(), 5000);
+                }, i * 40);
+            }
+        }
+
+        // ================================================================
+        // TOAST
+        // ================================================================
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        // ================================================================
+        // GENERATE WALLPAPER / CARD
+        // ================================================================
+        document.getElementById('genWallpaperBtn').addEventListener('click', async function() {
+            isCardMode = false;
+            await generateImage('wallpaper');
+        });
+
+        document.getElementById('genCardBtn').addEventListener('click', async function() {
+            isCardMode = true;
+            await generateImage('card');
+        });
+
+        async function generateImage(type) {
+            const btn1 = document.getElementById('genWallpaperBtn');
+            const btn2 = document.getElementById('genCardBtn');
+            const preview = document.getElementById('previewBox');
+            const previewImg = document.getElementById('previewImage');
+            const downloadBtn = document.getElementById('downloadFinalBtn');
+
+            btn1.disabled = true;
+            btn2.disabled = true;
+            btn1.innerHTML = '<span class="spinner"></span> Generating...';
+            btn2.innerHTML = '<span class="spinner"></span> Generating...';
+            showToast('🎨 Creating ' + (type === 'wallpaper' ? 'wallpaper' : 'card') + '...');
+
+            try {
+                const specialImg = document.getElementById('specialPhoto').src;
+
+                const canvas = document.createElement('canvas');
+                if (type === 'wallpaper') {
+                    canvas.width = 1080;
+                    canvas.height = 1920;
+                } else {
+                    canvas.width = 800;
+                    canvas.height = 600;
+                }
+                const ctx = canvas.getContext('2d');
+
+                // Background
+                const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                if (type === 'wallpaper') {
+                    grad.addColorStop(0, '#fce4ec');
+                    grad.addColorStop(0.3, '#f3e5f5');
+                    grad.addColorStop(0.6, '#e8eaf6');
+                    grad.addColorStop(0.8, '#e0f7fa');
+                    grad.addColorStop(1, '#fce4ec');
+                } else {
+                    grad.addColorStop(0, '#fce4ec');
+                    grad.addColorStop(0.5, '#f3e5f5');
+                    grad.addColorStop(1, '#e8eaf6');
+                }
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Flowers
+                const flowers = ['🌸', '🌺', '🌷', '🌹', '🌻', '🌼'];
+                for (let i = 0; i < (type === 'wallpaper' ? 40 : 20); i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    ctx.font = `${Math.random()*35+20}px sans-serif`;
+                    ctx.globalAlpha = Math.random() * 0.15 + 0.05;
+                    ctx.fillText(flowers[Math.floor(Math.random() * flowers.length)], x, y);
+                }
+                ctx.globalAlpha = 1;
+
+                // Sparkles
+                for (let i = 0; i < (type === 'wallpaper' ? 60 : 30); i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    ctx.font = `${Math.random()*18+8}px sans-serif`;
+                    ctx.globalAlpha = Math.random() * 0.25 + 0.05;
+                    ctx.fillText('✦', x, y);
+                }
+                ctx.globalAlpha = 1;
+
+                // Load special photo
+                const loadImg = (src) => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => resolve(img);
+                        img.onerror = () => resolve(null);
+                        img.src = src;
+                    });
+                };
+
+                const img = await loadImg(specialImg);
+
+                let size, y, titleSize, subtitleSize, bottomSize;
+
+                if (type === 'wallpaper') {
+                    size = 500;
+                    y = 500;
+                    titleSize = 64;
+                    subtitleSize = 28;
+                    bottomSize = 44;
+                } else {
+                    size = 300;
+                    y = 180;
+                    titleSize = 40;
+                    subtitleSize = 18;
+                    bottomSize = 28;
+                }
+
+                // Draw photo
+                if (img) {
+                    const x = (canvas.width - size) / 2;
+
+                    ctx.save();
+                    ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                    ctx.shadowBlur = 30;
+                    ctx.shadowOffsetX = 5;
+                    ctx.shadowOffsetY = 8;
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.roundRect(x - 15, y - 15, size + 30, size + (type === 'wallpaper' ? 70 : 55), 12);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    const r = 8;
+                    ctx.beginPath();
+                    ctx.moveTo(x + r, y);
+                    ctx.lineTo(x + size - r, y);
+                    ctx.quadraticCurveTo(x + size, y, x + size, y + r);
+                    ctx.lineTo(x + size, y + size - r);
+                    ctx.quadraticCurveTo(x + size, y + size, x + size - r, y + size);
+                    ctx.lineTo(x + r, y + size);
+                    ctx.quadraticCurveTo(x, y + size, x, y + size - r);
+                    ctx.lineTo(x, y + r);
+                    ctx.quadraticCurveTo(x, y, x + r, y);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(img, x, y, size, size);
+                    ctx.restore();
+
+                    ctx.shadowBlur = 0;
+                    ctx.font = `${type === 'wallpaper' ? 24 : 16}px "Dancing Script", cursive`;
+                    ctx.fillStyle = 'rgba(80,40,80,0.6)';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('💖 A Special Memory 💖', canvas.width / 2, y + size + (type === 'wallpaper' ? 50 : 38));
+                }
+
+                // Title
+                const titleGrad = ctx.createLinearGradient(0, type === 'wallpaper' ? 150 : 80, 0, type === 'wallpaper' ? 220 : 130);
+                titleGrad.addColorStop(0, '#e91e63');
+                titleGrad.addColorStop(0.5, '#9c27b0');
+                titleGrad.addColorStop(1, '#3f51b5');
+                ctx.font = `bold ${titleSize}px "Great Vibes", cursive`;
+                ctx.textAlign = 'center';
+                ctx.fillStyle = titleGrad;
+                ctx.shadowColor = 'rgba(233,30,99,0.15)';
+                ctx.shadowBlur = 15;
+                ctx.fillText('Forever Best Friend', canvas.width / 2, type === 'wallpaper' ? 200 : 100);
+                ctx.shadowBlur = 0;
+
+                // Subtitle
+                ctx.font = `${subtitleSize}px "Dancing Script", cursive`;
+                ctx.fillStyle = 'rgba(80,40,80,0.6)';
+                if (type === 'wallpaper') {
+                    ctx.fillText('From the bottom of my heart,', canvas.width / 2, 300);
+                    ctx.fillText('you mean the world to me ❤️', canvas.width / 2, 340);
+                    ctx.font = `20px "Dancing Script", cursive`;
+                    ctx.fillStyle = 'rgba(80,40,80,0.35)';
+                    ctx.fillText('Thank you for being in my life', canvas.width / 2, 390);
+                } else {
+                    ctx.fillText('You mean the world to me ❤️', canvas.width / 2, 145);
+                }
+
+                // Happy Birthday
+                const bottomGrad = ctx.createLinearGradient(0, canvas.height - (type === 'wallpaper' ? 180 : 100), 0, canvas.height - (type === 'wallpaper' ? 120 : 60));
+                bottomGrad.addColorStop(0, '#fbbf24');
+                bottomGrad.addColorStop(0.5, '#f472b6');
+                bottomGrad.addColorStop(1, '#ec4899');
+                ctx.font = `bold ${bottomSize}px "Great Vibes", cursive`;
+                ctx.fillStyle = bottomGrad;
+                ctx.shadowColor = 'rgba(244,114,182,0.2)';
+                ctx.shadowBlur = 15;
+                ctx.fillText('Happy Birthday, Bestie! 🎂', canvas.width / 2, canvas.height - (type === 'wallpaper' ? 110 : 65));
+                ctx.shadowBlur = 0;
+
+                // Decorative bottom
+                ctx.font = `${type === 'wallpaper' ? 28 : 18}px sans-serif`;
+                ctx.fillStyle = 'rgba(80,40,80,0.12)';
+                ctx.fillText('🌸 💕 🎀 ✨ 🌺', canvas.width / 2, canvas.height - (type === 'wallpaper' ? 50 : 30));
+
+                generatedImage = canvas.toDataURL('image/png');
+
+                preview.classList.add('show');
+                previewImg.src = generatedImage;
+                downloadBtn.style.display = 'flex';
+                downloadBtn.textContent = type === 'wallpaper' ? '📥 Download HD Wallpaper' : '📥 Download Digital Card';
+
+                showToast('✅ ' + (type === 'wallpaper' ? 'Wallpaper' : 'Card') + ' generated successfully!');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('⚠️ Error generating. Please try again.');
+            }
+
+            btn1.disabled = false;
+            btn2.disabled = false;
+            btn1.innerHTML = '✨ Download HD Wallpaper';
+            btn2.innerHTML = '🎴 Download Digital Card';
+        }
+
+        // ================================================================
+        // DOWNLOAD FINAL
+        // ================================================================
+        document.getElementById('downloadFinalBtn').addEventListener('click', function() {
+            if (!generatedImage) {
+                showToast('⚠️ Please generate first!');
+                return;
+            }
+            const link = document.createElement('a');
+            link.download = isCardMode ? 'birthday_card.png' : 'birthday_wallpaper.png';
+            link.href = generatedImage;
+            link.click();
+            showToast('✅ Downloaded successfully! 🎉');
+        });
+
+        // ================================================================
+        // ROUND RECT POLYFILL
+        // ================================================================
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (r > w / 2) r = w / 2;
+                if (r > h / 2) r = h / 2;
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
+                return this;
+            };
+        }
+
+        // ================================================================
+        // EXTRA STYLES
+        // ================================================================
+        const style = document.createElement('style');
+        style.textContent = `
+                    @keyframes sparkleAnim {
+                        0% { transform: scale(0) rotate(0deg); opacity:1; }
+                        100% { transform: scale(2) rotate(180deg); opacity:0; }
+                    }
+                    @keyframes fadeUp {
+                        0% { opacity:0; transform:translateY(20px); }
+                        100% { opacity:1; transform:translateY(0); }
+                    }
+                `;
+        document.head.appendChild(style);
+
+        // ================================================================
+        // FLOATING HEARTS
+        // ================================================================
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.className = "floating-heart";
+            heart.innerHTML = ["💖","💕","💗","💝","❤️"][Math.floor(Math.random()*5)];
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = (5 + Math.random() * 5) + "s";
+            heart.style.fontSize = (18 + Math.random() * 25) + "px";
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 10000);
+        }
+        setInterval(createHeart, 500);
+    </script>
+</body>
+</html>
